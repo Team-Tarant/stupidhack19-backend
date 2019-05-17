@@ -11,6 +11,7 @@
     "twilio": "^3.31.0"
   },
   "scripts": {
+    "start": "node src/index.js",
     "watch": "nodemon src/index.js"
   },
   "devDependencies": {
