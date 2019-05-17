@@ -27,19 +27,6 @@ const makeUrl = {
     `${TWIML_API_URL}/twiml/come-bontho?${qs({ name, place })}`
 }
 
-/*client.calls
-  .create({
-    url: makeUrl.forComeBontho('Joona', 'klusteri'),
-    to: '+358452020486',
-    from: TWILIO_NUMBER
-  })
-  .then(call => {
-    console.log('sid', call.sid)
-    console.log(call)
-  })
-  .catch(e => console.error('error', e))
-*/
-
 const apiAuth = (req, res, next) => {
   if (!req.query.api_key || req.query.api_key !== 'BONTHO') {
     return next(HttpErrors.unauthorized('invalid api_key'))
@@ -54,17 +41,18 @@ app.use(bodyParser.json())
  * @param {string} number
  * @returns {Promise<any>}
  */
-const enqueueCall = (number, url) => {
-  /*client.calls
+const enqueueCall = (number, url) =>
+  client.calls
     .create({ url, from: TWILIO_NUMBER, to: number })
-    .then(call => ({ sid: call.sid }))
-    .catch(e => ({ error: e }))*/
-  return Promise.resolve(
-    Math.random() > 0.5
-      ? { error: new Error('lol fail') }
-      : { sid: '1245nj2rjn213nj4jkkj23' }
-  )
-}
+    .then(({ sid, error_message, error_code }) => {
+      if (error_message || error_code) {
+        console.error(error_code, error_message)
+        return { error: `${error_code}: ${error_message}` }
+      }
+
+      return { sid: call.sid }
+    })
+    .catch(e => ({ error: e }))
 
 const inviteSchema = Joi.object().keys({
   numbers: Joi.array()
