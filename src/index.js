@@ -13,7 +13,8 @@ const {
   TWILIO_TOKEN,
   TWILIO_NUMBER,
   TWIML_API_URL,
-  PORT
+  PORT,
+  SUPER_API_KEY
 } = process.env
 const client = twilio(TWILIO_SID, TWILIO_TOKEN)
 
@@ -28,7 +29,7 @@ const makeUrl = {
 }
 
 const apiAuth = (req, res, next) => {
-  if (!req.query.api_key || req.query.api_key !== 'BONTHO') {
+  if (!req.query.api_key || req.query.api_key !== SUPER_API_KEY) {
     return next(HttpErrors.unauthorized('invalid api_key'))
   }
 
