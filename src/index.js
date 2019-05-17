@@ -45,15 +45,20 @@ app.use(bodyParser.json())
 const enqueueCall = (number, url) =>
   client.calls
     .create({ url, from: TWILIO_NUMBER, to: number })
-    .then(({ sid, error_message, error_code }) => {
+    .then(call => {
+      const { sid, error_message, error_code } = call
+
       if (error_message || error_code) {
         console.error(error_code, error_message)
         return { error: `${error_code}: ${error_message}` }
       }
 
-      return { sid: call.sid }
+      return { sid }
     })
-    .catch(e => ({ error: e }))
+    .catch(e => {
+      console.error(e)
+      return { error: e }
+    })
 
 const inviteSchema = Joi.object().keys({
   numbers: Joi.array()
