@@ -62,3 +62,7 @@ Response:
 ```
 
 `sid` is the Twilio call SID. Not in actual format in this example.
+
+## License
+
+MIT
