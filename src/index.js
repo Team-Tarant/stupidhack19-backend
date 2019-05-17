@@ -120,6 +120,8 @@ app.post(
   }
 )
 
+app.use('*', (req, res, next) => res.status(404).json({ error: 'not found' }))
+
 app.use((e, req, res, next) => {
   if (HttpErrors.isHttpError(e)) {
     return res.status(e.status).json({ error: e.message })
