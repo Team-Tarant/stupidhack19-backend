@@ -100,9 +100,25 @@ const demoRandomCall = async number => {
   }, 5000)
 }
 
+const isTruthy = obj => !!obj
+
 app.get('/api/invitations', apiAuth(SUPER_API_KEY), async (req, res, next) => {
-  const invitations = await Invitation.find({})
-  res.json(invitations)
+  if (!req.query.sids) {
+    return next(HttpErrors.badRequest('sids query param required'))
+  }
+
+  const sids = req.query.sids.split(',').filter(isTruthy)
+  const invitations = await Invitation.find({ sid: { $in: sids } })
+
+  res.json(
+    invitations.map(inv => {
+      const obj = inv.toJSON()
+      return {
+        sid: obj.sid,
+        response: obj.response
+      }
+    })
+  )
 })
 
 const responseSchema = Joi.object().keys({
