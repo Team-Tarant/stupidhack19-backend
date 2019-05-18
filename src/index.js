@@ -107,7 +107,8 @@ app.get('/api/invitations', apiAuth(SUPER_API_KEY), async (req, res, next) => {
 
 const responseSchema = Joi.object().keys({
   sid: Joi.string().required(),
-  isDown: Joi.bool().required()
+  isDown: Joi.bool().required(),
+  number: Joi.string().required()
 })
 
 app.post(
@@ -115,7 +116,7 @@ app.post(
   apiAuth(SUPER_TWILIO_API_KEY),
   validateBody(responseSchema),
   async (req, res) => {
-    const { sid, isDown } = req.locals.body
+    const { sid, isDown, number } = req.locals.body
     const invitation = await Invitation.findOne({ sid })
 
     if (!invitation) {
@@ -126,6 +127,11 @@ app.post(
     if (invitation.hasResponded()) {
       // uhhhhhhhh duplicate?
       return res.status(200).json({ ok: 'ok' })
+    }
+
+    if (!isDown) {
+      // not coming? thank you for subscribing to bönthö calls
+      demoRandomCall(number)
     }
 
     invitation.setIsDown(isDown)
