@@ -32,7 +32,8 @@ const qs = params =>
 const makeUrl = {
   forComeBontho: (name, place) =>
     `${TWIML_API_URL}/twiml/come-bontho?${qs({ name, place })}`,
-  forBonthoCall: text => `${TWIML_API_URL}/twiml/bontho-call?${qs({ text })}`
+  forBonthoCall: (text, inviter, place) =>
+    `${TWIML_API_URL}/twiml/bontho-call?${qs({ inviter, place, text })}`
 }
 
 const apiAuth = expectedApiKey => (req, res, next) => {
@@ -79,7 +80,9 @@ const inviteSchema = Joi.object().keys({
 })
 
 const subscribeSchema = Joi.object().keys({
-  number: Joi.string().required()
+  number: Joi.string().required(),
+  inviter: Joi.string().required(),
+  place: Joi.string().required()
 })
 
 const validateBody = schema => (req, res, next) => {
@@ -93,10 +96,10 @@ const validateBody = schema => (req, res, next) => {
   next()
 }
 
-const demoRandomCall = async number => {
+const demoRandomCall = async (number, inviter, place) => {
   const text = await getContent()
   setTimeout(() => {
-    enqueueCall(number, makeUrl.forBonthoCall(text))
+    enqueueCall(number, makeUrl.forBonthoCall(text, inviter, place))
   }, 5000)
 }
 
@@ -147,7 +150,7 @@ app.post(
 
     if (!isDown) {
       // not coming? thank you for subscribing to bönthö calls
-      demoRandomCall(number)
+      demoRandomCall(number, invitation.inviter, invitation.place)
     }
 
     invitation.setIsDown(isDown)
@@ -196,7 +199,7 @@ app.post(
 
     try {
       // save queued calls to db
-      await Invitation.createSent(queued)
+      await Invitation.createSent(inviter, place, queued)
     } catch (e) {
       console.error('error while saving invitations to db', e)
     }
@@ -210,11 +213,11 @@ app.post(
   apiAuth(SUPER_API_KEY),
   validateBody(subscribeSchema),
   async (req, res) => {
-    const { number } = req.locals.body
+    const { number, inviter, place } = req.locals.body
 
     const parsedNumber = parseNumber(number)
 
-    demoRandomCall(parsedNumber)
+    demoRandomCall(parsedNumber, inviter, place)
     res.json({ status: 'success' })
   }
 )
