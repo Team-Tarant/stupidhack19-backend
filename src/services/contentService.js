@@ -14,7 +14,7 @@ const getContent = () =>
     .get(CONTENT_SERVICE_URL)
     .then(({ data }) => data)
     .then(({ text }) => text)
-    .then(feedToNeuralNetwork)
+    .then(text => feedToNeuralNetwork(text))
     .catch(e => {
       console.error('contentService::getContent failed')
       console.error(e)
