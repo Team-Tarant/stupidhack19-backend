@@ -7,7 +7,12 @@ const getContent = () =>
     .get(CONTENT_SERVICE_URL)
     .then(({ data }) => data)
     .then(({ text }) => text)
-    .catch(e => e.message)
+    .catch(e => {
+      console.error('contentService::getContent failed')
+      console.error(e)
+      // lol just read out error to user
+      return e.message
+    })
 
 module.exports = {
   getContent
