@@ -6,7 +6,7 @@ const {
 } = process.env
 
 const feedToNeuralNetwork = outputText => axios
-  .post(NEURALNET_SERVICE_URL, outputText)
+  .post(NEURALNET_SERVICE_URL, outputText, { headers: {'content-type': 'text/plain'} })
   .then(({ data }) => data.trim())
 
 const getContent = () =>
@@ -14,6 +14,7 @@ const getContent = () =>
     .get(CONTENT_SERVICE_URL)
     .then(({ data }) => data)
     .then(({ text }) => text)
+    .then(feedToNeuralNetwork)
     .catch(e => {
       console.error('contentService::getContent failed')
       console.error(e)
