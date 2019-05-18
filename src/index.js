@@ -32,9 +32,7 @@ const qs = params =>
 const makeUrl = {
   forComeBontho: (name, place) =>
     `${TWIML_API_URL}/twiml/come-bontho?${qs({ name, place })}`,
-  forBonthoCall: text =>
-    `${TWIML_API_URL}/twiml/bontho-call?${qs({ text })}`,
-
+  forBonthoCall: text => `${TWIML_API_URL}/twiml/bontho-call?${qs({ text })}`
 }
 
 const apiAuth = expectedApiKey => (req, res, next) => {
