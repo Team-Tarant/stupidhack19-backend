@@ -187,8 +187,8 @@ app.post(
 
 app.post(
   '/api/subscribe',
-  apiAuth,
-  validate(subscribeSchema),
+  apiAuth(SUPER_API_KEY),
+  validateBody(subscribeSchema),
   async (req, res) => {
     const { number } = req.locals.body
     demoRandomCall(number)
