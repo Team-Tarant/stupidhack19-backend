@@ -189,7 +189,10 @@ app.post(
   validateBody(subscribeSchema),
   async (req, res) => {
     const { number } = req.locals.body
-    demoRandomCall(number)
+
+    const parsedNumber = parseNumber(number)
+
+    demoRandomCall(parsedNumber)
     res.json({ status: 'success' })
   }
 )
