@@ -97,7 +97,7 @@ const demoRandomCall = async number => {
   const text = await getContent()
   setTimeout(() => {
     enqueueCall(number, makeUrl.forBonthoCall(text))
-  }, 20000)
+  }, 5000)
 }
 
 app.get('/api/invitations', apiAuth(SUPER_API_KEY), async (req, res, next) => {
