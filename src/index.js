@@ -95,6 +95,13 @@ const validateBody = schema => (req, res, next) => {
   next()
 }
 
+const demoRandomCall = async number => {
+  const text = await getContent()
+  setTimeout(() => {
+    enqueueCall(number, makeUrl.forBonthoCall(text))
+  }, 20000)
+}
+
 app.get('/api/invitations', apiAuth(SUPER_API_KEY), async (req, res, next) => {
   const invitations = await Invitation.find({})
   res.json(invitations)
@@ -184,9 +191,8 @@ app.post(
   validate(subscribeSchema),
   async (req, res) => {
     const { number } = req.locals.body
-    const text = await getContent()
-    const call = await enqueueCall(number, makeUrl.forBonthoCall(text))
-    res.json({ status: call })
+    demoRandomCall(number)
+    res.json({ status: 'success' })
   }
 )
 
