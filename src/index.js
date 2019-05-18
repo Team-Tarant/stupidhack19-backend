@@ -9,6 +9,7 @@ const app = require('express')()
 const { Invitation } = require('./models')
 const { HttpErrors, PhoneNumberParseError } = require('./errors')
 const { parseNumbers, parseNumber } = require('./util')
+const { getContent } = require('./services/contentService')
 
 const {
   TWILIO_SID,
@@ -30,7 +31,8 @@ const qs = params =>
 
 const makeUrl = {
   forComeBontho: (name, place) =>
-    `${TWIML_API_URL}/twiml/come-bontho?${qs({ name, place })}`
+    `${TWIML_API_URL}/twiml/come-bontho?${qs({ name, place })}`,
+  forBonthoCall: text => `${TWIML_API_URL}/twiml/bontho-call?${qs({ text })}`
 }
 
 const apiAuth = expectedApiKey => (req, res, next) => {
@@ -76,6 +78,10 @@ const inviteSchema = Joi.object().keys({
     .required()
 })
 
+const subscribeSchema = Joi.object().keys({
+  number: Joi.string().required()
+})
+
 const validateBody = schema => (req, res, next) => {
   const { error, value } = Joi.validate(req.body, schema)
   if (error) {
@@ -85,6 +91,13 @@ const validateBody = schema => (req, res, next) => {
 
   req.locals = { ...req.locals, body: value }
   next()
+}
+
+const demoRandomCall = async number => {
+  const text = await getContent()
+  setTimeout(() => {
+    enqueueCall(number, makeUrl.forBonthoCall(text))
+  }, 20000)
 }
 
 app.get('/api/invitations', apiAuth(SUPER_API_KEY), async (req, res, next) => {
@@ -167,6 +180,20 @@ app.post(
     }
 
     res.json({ queued, failed })
+  }
+)
+
+app.post(
+  '/api/subscribe',
+  apiAuth(SUPER_API_KEY),
+  validateBody(subscribeSchema),
+  async (req, res) => {
+    const { number } = req.locals.body
+
+    const parsedNumber = parseNumber(number)
+
+    demoRandomCall(parsedNumber)
+    res.json({ status: 'success' })
   }
 )
 
