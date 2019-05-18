@@ -14,7 +14,9 @@ const invitationSchema = new mongoose.Schema(
   {
     phoneHash: String,
     sid: String,
-    response: String
+    response: String,
+    inviter: String,
+    place: String
   },
   {
     timestamps: true
@@ -35,7 +37,7 @@ invitationSchema.methods.hasResponded = function hasResponded() {
 /**
  * @param {{number: string, sid: string}[]} calls
  */
-invitationSchema.statics.createSent = async function createSent(calls) {
+invitationSchema.statics.createSent = async function createSent(inviter, place, calls) {
   // store the E.164 formatted number so that "040 123 4567" and "040 1234 567"
   // are not different numbers
   const callsToCreate = await Promise.all(
@@ -45,7 +47,9 @@ invitationSchema.statics.createSent = async function createSent(calls) {
         sid,
         // hash the number cos I don't want to store personal information geez
         phoneHash: await bcrypt.hash(e164number, PHONE_BCRYPT_COST),
-        response: Responses.NO_RESPONSE_YET
+        response: Responses.NO_RESPONSE_YET,
+        inviter,
+        place
       }
     })
   )
